@@ -187,7 +187,7 @@
     </header>
 
     <div class="container">
-        <button id="sos-button" class="button red" onclick="toggleSosOptions()">S O S</button>
+        <button id="sos-button" class="button red" onclick="toggleSosOptions()" ondblclick="sendSOS()">S O S</button>
         <select id="sos-time-options" class="time-options">
             <option value="">Select SOS Timer</option>
             <option value="0">Send SOS Now</option>
@@ -197,8 +197,8 @@
         </select>
         <div id="sos-countdown" class="countdown"></div>
         
-        <button id="call-button" class="button blue">Call Me</button>
-        <select id="time-options" style="display: none;">
+        <button id="call-button" class="button blue" ondblclick="openCallPage()">Call Me</button>
+        <select id="time-options" class = "time-options" >
             <option value="">close</option>
             <option value="0">Call Now</option>
             <option value="1">1 Minute Later</option>

@@ -148,7 +148,7 @@ app.post('/api/send-sos', async (req, res) => {
         res.status(500).json({ error: 'Failed to send SOS emails' });
     }
 });
-//ai
+// chat session
 app.post('/api/chat/start', async (req, res) => {
     try {
       const { userId } = req.body;

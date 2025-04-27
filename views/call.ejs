@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incoming Call...</title>
+    <title>Call Application</title>
     <style>
         body {
             margin: 0;
@@ -16,11 +16,11 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-
+        
         .call-container {
             text-align: center;
         }
-
+        
         .profile-img {
             width: 120px;
             height: 120px;
@@ -28,23 +28,23 @@
             margin-bottom: 20px;
             border: 4px solid white;
         }
-
+        
         .caller-name {
             font-size: 2rem;
             margin-bottom: 10px;
         }
-
+        
         .incoming-text {
             font-size: 1.2rem;
             margin-bottom: 40px;
             color: #aaa;
         }
-
+        
         .buttons {
             display: flex;
             gap: 20px;
         }
-
+        
         .button {
             padding: 15px 30px;
             border-radius: 10px;
@@ -54,61 +54,188 @@
             border: none;
             transition: transform 0.2s;
         }
-
+        
         .accept {
             background-color: green;
         }
-
+        
         .accept:hover {
             background-color: #00cc00;
             transform: scale(1.1);
         }
-
-        .decline {
+        
+        .decline, .end-call {
             background-color: red;
         }
-
-        .decline:hover {
+        
+        .decline:hover, .end-call:hover {
             background-color: #cc0000;
             transform: scale(1.1);
+        }
+        
+        /* Call In Progress Styles */
+        #call-progress {
+            display: none;
+        }
+        
+        .timer {
+            font-size: 2.5rem;
+            margin: 20px 0 30px;
+            font-weight: bold;
+        }
+        
+        .call-status {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .call-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .control-button:hover {
+            transform: scale(1.1);
+            background-color: #444;
+        }
+        
+        .mute {
+            position: relative;
+        }
+        
+        .muted::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background-color: red;
+            transform: rotate(45deg);
+        }
+
+        /* Center the end call button container */
+        .end-call {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="call-container">
+    <!-- Incoming Call Screen -->
+    <div id="incoming-call" class="call-container">
         <!-- Caller Profile Image -->
-        <img src="<%= profileImage %>" alt="Caller Profile" class="profile-img">
+        <img src="/profile.jpeg" alt="Caller Profile" class="profile-img">
         
         <!-- Caller Name -->
-        <div class="caller-name"><%= callerName %></div>
-
+        <div class="caller-name">Emergency Contact</div>
+        
         <!-- Incoming Call Text -->
         <div class="incoming-text">Incoming call...</div>
-
+        
         <!-- Accept/Decline Buttons -->
         <div class="buttons">
             <button class="button accept" onclick="acceptCall()">Accept</button>
             <button class="button decline" onclick="declineCall()">Decline</button>
         </div>
     </div>
-
+    
+    <!-- Call In Progress Screen -->
+    <div id="call-progress" class="call-container">
+        <img src="/profile.jpeg" alt="Caller Profile" class="profile-img">
+        <div class="caller-name">Emergency Contact</div>
+        <div class="call-status">Call in progress</div>
+        <div class="timer" id="call-timer">00:00</div>
+        
+       
+        
+        <div class="buttons" style="margin-top: 30px;">
+            <button class="button end-call" onclick="endCall()">End Call</button>
+        </div>
+    </div>
+    
     <script>
+        // Placeholder data - in a real app, these would come from the server
+        const caller = {
+            name: "Emergency Contact",
+            profileImage: "/profile.jpeg"
+        };
+        
+        // Initialize call state
+        let callTimer;
+        let seconds = 0;
+        
         // Play ringtone when the page loads
-        const ringtone = new Audio('/ringtone.mp3'); // Ensure this path is correct
+        const ringtone = new Audio('/ringtone.mp3'); 
         ringtone.loop = true;
-        ringtone.play();
-
+        
+        // Try to play the ringtone - this may fail due to browser autoplay policies
+        try {
+            ringtone.play().catch(e => console.log("Autoplay prevented: ", e));
+        } catch (error) {
+            console.log("Error playing ringtone:", error);
+        }
+        
+        // Function to update the timer display
+        function updateTimer() {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const remainderSeconds = seconds % 60;
+            
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            const formattedSeconds = remainderSeconds < 10 ? '0' + remainderSeconds : remainderSeconds;
+            
+            document.getElementById('call-timer').innerText = `${formattedMinutes}:${formattedSeconds}`;
+        }
+        
         function acceptCall() {
-            alert('Call accepted!');
-            ringtone.pause(); // Stop the ringtone
-            // Optionally redirect to a new page, or do any other action
+            // Stop the ringtone
+            ringtone.pause();
+            
+            // Hide incoming call screen, show call in progress screen
+            document.getElementById('incoming-call').style.display = 'none';
+            document.getElementById('call-progress').style.display = 'block';
+            
+            // Start the timer
+            callTimer = setInterval(updateTimer, 1000);
         }
-
+        
         function declineCall() {
-            alert('Call declined.');
-            ringtone.pause(); // Stop the ringtone
-            window.close(); // Close the call page
+            // Stop the ringtone
+            ringtone.pause();
+            
+            
+            
+            // Close the window or return to previous screen
+            window.close(); // This might not work in all browsers due to security restrictions
         }
+        
+        function endCall() {
+            // Stop the timer
+            clearInterval(callTimer);
+            
+           
+            
+            
+            window.close(); // This might not work in all browsers due to security restrictions
+        }
+       
     </script>
 </body>
 </html>
